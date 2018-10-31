@@ -464,6 +464,29 @@ def 'db_sslmode',
     doc => '';
 
 
+### SECTION  ---   hmrc_mtd
+
+def 'mtd_endpoint_uri',
+    section => 'hmrc_mtd',
+    default => undef,
+    doc => 'Base endpoint URI to use when accessing UK HMRC Making Tax Digital API.';
+
+def 'mtd_client_id',
+    section => 'hmrc_mtd',
+    default => undef,
+    doc => 'Client ID to use when accessing UK HMRC Making Tax Digital API. Specific to an application and issued by HMRC when the application is registered with them.';
+
+def 'mtd_client_secret',
+    section => 'hmrc_mtd',
+    default => undef,
+    doc => 'Client Secret to use when accessing UK HMRC Making Tax Digital API. Specific to an application and issued by HMRC when the application is registered with them.';
+
+def 'mtd_server_token',
+    section => 'hmrc_mtd',
+    default => undef,
+    doc => 'Server Token to use when accessing UK HMRC Making Tax Digital API. Specific to an application and issued by HMRC when the application is registered with them.';
+
+
 # available printers
 our %printer;
 for ($cfg->Parameters('printers')){
@@ -481,7 +504,8 @@ our @newscripts = qw(
    account.pl admin.pl asset.pl budget_reports.pl budgets.pl business_unit.pl
    configuration.pl contact.pl contact_reports.pl drafts.pl
    file.pl goods.pl import_csv.pl inventory.pl invoice.pl inv_reports.pl
-   journal.pl login.pl lreports_co.pl menu.pl order.pl parts.pl payment.pl
+   journal.pl login.pl lreports_co.pl menu.pl mtd_vat.pl
+   order.pl parts.pl payment.pl
    payroll.pl pnl.pl recon.pl report_aging.pl reports.pl setup.pl taxform.pl
    template.pl timecard.pl transtemplate.pl trial_balance.pl user.pl vouchers.pl
 );

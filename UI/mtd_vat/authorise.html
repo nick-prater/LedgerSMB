@@ -1,0 +1,47 @@
+<?lsmb
+    PROCESS 'elements.html';
+?>
+<body>
+    <div id="mtd_authorise">
+
+        <form method="post" action="mtd_vat.pl" data-dojo-type="lsmb/Form">
+            <div class="listtop">HMRC Making Tax Digital - User Authorisation</div>
+
+                <div>
+                <p>
+                    <a href="<?lsmb UNESCAPE(authorisation_url) ?>" target="_blank">
+                        Visit the HMRC authorisation page
+                    </a>
+                    for this application (which opens in a new window) and follow the instructions
+                    to generate an Authorisation Code.
+                </p>
+
+                <p>
+                    Then return to this page, paste the code into the box below, and press 'Authorise'
+                    to complete the authorisation of this application for VAT submissions to HMRC.
+                </p>
+                </div>
+
+                <div>
+                    <label for="authorisation_code">Authorisation Code</label>
+                    <?lsmb INCLUDE input element_data = {
+                        name = "authorisation_code"
+                        required = "true"
+                        title = text('Authorisation Code')
+                        id = "authorisation_code"
+                    } ?>
+                </div>
+
+                <div>
+                    <?lsmb INCLUDE button element_data = {
+                        text = text('Authorise')
+                        name = "action"
+                        value = "generate_access_token"
+                        class = "submit"
+                        type = "submit"
+                    } ?>
+                </div>
+
+        </form>
+    </div>
+</body>

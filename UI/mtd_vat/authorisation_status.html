@@ -1,0 +1,71 @@
+<?lsmb
+    PROCESS 'elements.html';
+?>
+<body>
+    <div id="mtd_authorisation_status">
+
+        <form method="post" action="mtd_vat.pl" data-dojo-type="lsmb/Form">
+            <div class="listtop"><?lsmb text("HMRC Making Tax Digital - User Authorisation") ?></div>
+
+            <?lsmb IF mtd_token.id ?>
+
+                <div>
+                    <?lsmb IF mtd_token.has_expired ?>
+                        <?lsmb text("The authorisation token has expired."); ?>
+                    <?lsmb ELSIF mtd_token.expiry_hours > 1 ?>
+                        <?lsmb text(
+                            "An authorisation token exists and will remain valid for [_1] hours.",
+                            mtd_token.expiry_hours
+                        ) ?>
+                    <?lsmb ELSIF mtd_token.expiry_hours == 1 ?>
+                        <?lsmb text("An authorisation token exists and will remain valid for 1 hour.") ?>
+                    <?lsmb ELSE ?>
+                        <?lsmb text("An authorisation token exists, but it will expire in less than 1 hour.") ?>
+                    <?lsmb END ?>
+                </div>
+
+                <?lsmb INCLUDE input element_data = {
+                    type = "hidden"
+                    name = "mtd_token_id"
+                    value = mtd_token.id
+                } ?>
+
+                <div>
+                    <?lsmb INCLUDE button element_data = {
+                        text = text('Renew Access Token')
+                        name = "action"
+                        value = "renew_access_token"
+                        class = "submit"
+                        type = "submit"
+                    } ?>
+
+                    <?lsmb INCLUDE button element_data = {
+                        text = text('Clear Access Token')
+                        name = "action"
+                        value = "clear_access_token"
+                        class = "submit"
+                        type = "submit"
+                    } ?>
+                </div>
+
+            <?lsmb ELSE ?>
+
+                <div>
+                    <?lsmb text("This application has not been authorised with HMRC for the current user.") ?>
+                </div>
+
+                <div>
+                    <?lsmb INCLUDE button element_data = {
+                        text = text('Authorise')
+                        name = "action"
+                        value = "authorise"
+                        class = "submit"
+                        type = "submit"
+                    } ?>
+                </div>
+
+            <?lsmb END ?>
+        </form>
+
+    </div>
+</body>
