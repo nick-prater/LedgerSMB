@@ -81,3 +81,4 @@
 1.7/alter-menu-attributes.sql
 1.7/drop-duplicate-gifi-index.sql
 1.7/drop-menu-add-accounts.sql
+1.7/add-mtd-vat-filing.sql

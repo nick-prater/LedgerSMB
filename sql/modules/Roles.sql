@@ -1158,6 +1158,16 @@ SELECT lsmb__grant_exec('assets_approve', 'asset_report__approve(int, int, int, 
 SELECT lsmb__grant_menu('assets_approve', id, 'allow')
   FROM unnest(array[239,240]) id;
 
+
+\echo MTD VAT (for filing to UK HMRC)
+SELECT lsmb__create_role('mtd_file_vat');
+SELECT lsmb__grant_menu('mtd_file_vat', id, 'allow')
+  FROM unnest(array[255, 256, 257, 258]) id;
+SELECT lsmb__grant_perms('mtd_file_vat', 'mtd_token', 'ALL');
+SELECT lsmb__grant_perms('mtd_file_vat', 'mtd__token_expiry_view', 'SELECT');
+SELECT lsmb__grant_perms('mtd_file_vat', 'mtd_token_id_seq', 'ALL');
+
+
 -- Grants to all users;
 SELECT lsmb__grant_perms('base_user', obj, 'SELECT')
   FROM unnest(array['asset_unit_class'::text, 'asset_dep_method',

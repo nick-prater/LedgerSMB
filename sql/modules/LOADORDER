@@ -41,6 +41,7 @@ Payroll.sql
 Transaction_Templates.sql
 OrderEntry.sql
 Goods.sql
+mtd.sql
 Roles.sql
 Templates.sql
 Timecards.sql
