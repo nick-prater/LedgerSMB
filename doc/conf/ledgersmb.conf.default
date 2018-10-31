@@ -122,3 +122,12 @@ sslmode = prefer
 [log4perl_config_modules_loglevel]
 LedgerSMB = INFO
 LedgerSMB.DBObject = INFO
+
+[hmrc_mtd]
+# Configuration for integration with the UK HMRC Making Tax Digital API.
+# The required field values are provided by HMRC when the application is
+# registered with them.
+#mtd_endpoint_uri = https://api.service.hmrc.gov.uk
+#mtd_client_id =
+#mtd_client_secret =
+#mtd_server_token =

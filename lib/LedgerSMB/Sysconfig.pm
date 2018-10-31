@@ -468,7 +468,7 @@ def 'db_sslmode',
 
 def 'mtd_endpoint_uri',
     section => 'hmrc_mtd',
-    default => undef,
+    default => 'https://api.service.hmrc.gov.uk',
     doc => 'Base endpoint URI to use when accessing UK HMRC Making Tax Digital API.';
 
 def 'mtd_client_id',
