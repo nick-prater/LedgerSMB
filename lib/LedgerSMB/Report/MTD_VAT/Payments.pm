@@ -28,6 +28,7 @@ display VAT payments - amounts that HMRC have received from you.
 
 =cut
 
+use LedgerSMB::MooseTypes;
 use Moose;
 use namespace::autoclean;
 use WebService::HMRC::Authenticate;
@@ -62,8 +63,7 @@ attribute.
 
 has 'date_from' => (
     is => 'ro',
-    isa => 'Str',
-    where => { $_ =~ m/^\d{4}-\d{2}-\d{2}$/ },
+    isa => 'LedgerSMB::Moose::ISO_date',
     required => 1,
 );
 
@@ -76,8 +76,7 @@ attribute. Must be a date before today.
 
 has 'date_to' => (
     is => 'ro',
-    isa => 'Str',
-    where => { $_ =~ m/^\d{4}-\d{2}-\d{2}$/ },
+    isa => 'LedgerSMB::Moose::ISO_date',
     required => 1,
 );
 
@@ -111,8 +110,7 @@ for more information.
 
 has test_mode => (
     is => 'ro',
-    isa => 'Maybe[Str]',
-    where => { $_ =~ m/^(SINGLE_PAYMENT|MULTIPLE_PAYMENTS)$/ },
+    isa => 'Maybe[LedgerSMB::Moose::MTD_VAT_payment_test_mode]',
     default => undef,
 );
 

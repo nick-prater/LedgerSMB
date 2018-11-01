@@ -48,11 +48,51 @@ date formats.
 
 =cut
 
-subtype 'LedgerSMB::Moose::Date', as 'Maybe[LedgerSMB::PGDate]';
+subtype 'LedgerSMB::Moose::Date',
+    as 'Maybe[LedgerSMB::PGDate]';
 
 
+=head2 LedgerSMB::Moose::ISO_date
 
-=head3 Coercions
+An ISO8601 date in the format YYYY-MM-DD.
+
+=cut
+
+subtype 'LedgerSMB::Moose::ISO_date',
+    as 'Str',
+    where { m/^\d{4}-\d{2}-\d{2}$/ },
+    message { 'The value does not match format YYYY-MM-DD' };
+
+
+=head2 LedgerSMB::Moose::MTD_VAT_payment_test_mode
+
+A string which can be either 'SINGLE_PAYMENT' or 'MULTIPLE_PAYMENTS' used
+to specify the test mode for interacting with the UK HMRC Making Tax Digital
+payment API.
+
+=cut
+
+subtype 'LedgerSMB::Moose::MTD_VAT_payment_test_mode',
+    as 'Str',
+    where { m/^(SINGLE_PAYMENT|MULTIPLE_PAYMENTS)$/ },
+    message { q{The value does not match 'SINGLE_PAYMENT' or 'MULTIPLE_PAYMENTS'} };
+
+
+=head2 LedgerSMB::Moose::MTD_VAT_liability_test_mode
+
+A string which can be either 'SINGLE_LIABILITY' or 'MULTIPLE_LIABILITIES' used
+to specify the test mode for interacting with the UK HMRC Making Tax Digital
+liability API.
+
+=cut
+
+subtype 'LedgerSMB::Moose::MTD_VAT_liability_test_mode',
+    as 'Str',
+    where { m/^(SINGLE_LIABILITY|MULTIPLE_LIABILITIES)$/ },
+    message { q{The value does not match 'SINGLE_LIABILITY' or 'MULTIPLE_LIABILITIES'} };
+
+
+=head1 COERCIONS
 
 The only coercion provided is from a string, and it calls the PGDate class's
 from_input method.  A second coercion is provided for
