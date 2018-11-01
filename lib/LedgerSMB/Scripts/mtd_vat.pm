@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use PGObject::Simple;
 use LedgerSMB::Report::MTD_VAT::Liabilities;
+use LedgerSMB::Report::MTD_VAT::Payments;
 use LedgerSMB::Sysconfig;
 use LedgerSMB::Template::UI;
 use Time::Piece;
@@ -260,6 +261,65 @@ sub query_liabilities {
 
     return $report->render($request);
 }
+
+
+=head2 filter_payments
+
+Presents filter screen allowing user to specify a date range before querying
+VAT payments.
+
+No request parameters are required.
+
+=cut
+
+sub filter_payments {
+
+    my $request = shift;
+    my $template = LedgerSMB::Template::UI->new_UI;
+
+    my $defaults = {
+        date_from => gmtime->add_years(-1)->ymd,
+        date_to   => ((gmtime) - ONE_DAY)->ymd,
+    };
+
+    return $template->render(
+        $request,
+        'Reports/filters/mtd_vat/payments',
+        {defaults => $defaults},
+    );
+}
+
+
+=head2 query_payments
+
+Queries the HMRC MTD VAT api for payments - money that HMRC has received.
+
+The request must contain the following parameters:
+
+  * date_from
+  * date_to
+  * dbh
+
+The C<date_from> parameter must be before today's date.
+
+=cut
+
+sub query_payments {
+
+    my $request = shift;
+    my $token = _get_user_token($request->{dbh});
+
+    my $report = LedgerSMB::Report::MTD_VAT::Payments->new(
+        vrn => $request->setting->get('company_sales_tax_id'),
+        date_from => $request->{date_from},
+        date_to => $request->{date_to},
+        access_token => $token->{access_token},
+        test_mode => ($request->{test_mode} || undef),
+    );
+
+    return $report->render($request);
+}
+
 
 
 # PRIVATE FUNCTIONS
