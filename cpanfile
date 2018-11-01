@@ -57,7 +57,8 @@ requires 'Try::Tiny';
 requires 'Text::CSV';
 requires 'Text::Markdown';
 requires 'Version::Compare';
-requires 'WebService::HMRC';
+requires 'WebService::HMRC', '0.02';
+requires 'WebService::HMRC::VAT';
 requires 'XML::Simple';
 requires 'namespace::autoclean';
 

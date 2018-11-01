@@ -11,13 +11,18 @@ using the HMRC Making Tax Digital (MTD) api.
 
 =cut
 
+
 use strict;
 use warnings;
 use PGObject::Simple;
+use LedgerSMB::Report::MTD_VAT::Liabilities;
 use LedgerSMB::Sysconfig;
 use LedgerSMB::Template::UI;
 use Time::Piece;
-use WebService::HMRC::Authenticate;
+use Time::Seconds;
+use WebService::HMRC::VAT;
+use WebService::HMRC::Authenticate 0.02;
+
 
 =head1 METHODS
 
@@ -30,7 +35,6 @@ token,
 The request must contain the following parameter:
 
   * dbh
-
 
 =cut
 
@@ -76,7 +80,7 @@ sub clear_access_token {
         $request->{mtd_token_id},
     );
 
-    authorisation_status($request);
+    return authorisation_status($request);
 }
 
 
@@ -146,7 +150,7 @@ sub generate_access_token {
         $auth
     );
 
-    authorisation_status($request);
+    return authorisation_status($request);
 }
 
 
@@ -154,6 +158,8 @@ sub generate_access_token {
 
 Requests an updated access token from HMRC to replace the specified existing
 token. Updates the database, then displays the authorisation status screen.
+
+The request must contain the following parameters:
 
   * mtd_token_id 
   * dbh
@@ -193,9 +199,67 @@ sub renew_access_token {
         $auth
     );
 
-    authorisation_status($request);
+    return authorisation_status($request);
 }
 
+
+=head2 filter_liabilties
+
+Presents filter screen allowing user to specify a date range before querying
+VAT liabilities.
+
+No request parameters are required.
+
+=cut
+
+sub filter_liabilities {
+
+    my $request = shift;
+    my $template = LedgerSMB::Template::UI->new_UI;
+
+    my $defaults = {
+        date_from => gmtime->add_years(-1)->ymd,
+        date_to   => ((gmtime) - ONE_DAY)->ymd,
+    };
+
+    return $template->render(
+        $request,
+        'Reports/filters/mtd_vat/liabilities',
+        {defaults => $defaults},
+    );
+}
+
+
+=head2 query_liabilities
+
+Queries the HMRC MTD VAT api for liabilities - money HMRC think is due in
+respect of VAT.
+
+The request must contain the following parameters:
+
+  * date_from
+  * date_to
+  * dbh
+
+The C<date_from> parameter must be before today's date.
+
+=cut
+
+sub query_liabilities {
+
+    my $request = shift;
+    my $token = _get_user_token($request->{dbh});
+
+    my $report = LedgerSMB::Report::MTD_VAT::Liabilities->new(
+        vrn => $request->setting->get('company_sales_tax_id'),
+        date_from => $request->{date_from},
+        date_to => $request->{date_to},
+        access_token => $token->{access_token},
+        test_mode => ($request->{test_mode} || undef),
+    );
+
+    return $report->render($request);
+}
 
 
 # PRIVATE FUNCTIONS

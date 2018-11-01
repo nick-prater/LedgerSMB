@@ -1,0 +1,48 @@
+<?lsmb
+    PROCESS "elements.html";
+?>
+
+<body class="lsmb <?lsmb dojo_theme ?>">
+<div id="mtd_vat_liability_filter">
+<form data-dojo-type="lsmb/Form" action="mtd_vat.pl" method="get">
+    <div class="listtop" id="title_div"><?lsmb text('Retrieve HMRC VAT Liabilities') ?></div>
+    <div data-dojo-type="lsmb/TabularForm" data-dojo-props="cols:1">
+
+            <div class="input">
+                <?lsmb INCLUDE input element_data = {
+                        title = text('Date From')
+                        type = 'text'
+                        class = 'date'
+                        size = 12,
+                        value = defaults.date_from
+                        name = 'date_from'
+                        required = "true"
+                } ?>
+            </div>
+
+            <div>
+                <?lsmb INCLUDE input element_data = {
+                        title = text('Date To'),
+                        type = 'text'
+                        class = 'date'
+                        size = 12
+                        value = defaults.date_to
+                        name = 'date_to'
+                        required = "true"
+                } ?>
+            </div>
+    </div>
+
+    <div class="input" id="buttons_div">
+        <?lsmb INCLUDE button element_data = {
+            text = text('Search')
+            name = "action"
+            value = "query_liabilities"
+            class = "submit"
+            type = "submit"
+        } ?>
+    </div>
+
+</form>
+</div>
+</body>
