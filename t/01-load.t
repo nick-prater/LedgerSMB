@@ -145,6 +145,7 @@ my @modules =
           'LedgerSMB::Report::Listings::Business_Unit',
           'LedgerSMB::Report::Listings::Business_Type',
           'LedgerSMB::Report::MTD_VAT::Liabilities',
+          'LedgerSMB::Report::MTD_VAT::Obligations',
           'LedgerSMB::Report::MTD_VAT::Payments',
           'LedgerSMB::Report::PNL::ECA',
           'LedgerSMB::Report::PNL::Income_Statement',

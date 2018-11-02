@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use PGObject::Simple;
 use LedgerSMB::Report::MTD_VAT::Liabilities;
+use LedgerSMB::Report::MTD_VAT::Obligations;
 use LedgerSMB::Report::MTD_VAT::Payments;
 use LedgerSMB::Sysconfig;
 use LedgerSMB::Template::UI;
@@ -244,6 +245,11 @@ The request must contain the following parameters:
 
 The C<date_from> parameter must be before today's date.
 
+The request may optionally contain a C<test_mode> parameter. This is only
+valid when used against the HMRC sandbox API and, if present, must be set to
+one of the values specified in the
+L<HMRC API documentation|https://developer.service.hmrc.gov.uk/api-documentation/docs/api/service/vat-api/1.0#_retrieve-vat-liabilities_get_accordion>.
+
 =cut
 
 sub query_liabilities {
@@ -256,7 +262,7 @@ sub query_liabilities {
         date_from => $request->{date_from},
         date_to => $request->{date_to},
         access_token => $token->{access_token},
-        test_mode => ($request->{test_mode} || undef),
+        test_mode => $request->{test_mode},
     );
 
     return $report->render($request);
@@ -302,6 +308,11 @@ The request must contain the following parameters:
 
 The C<date_from> parameter must be before today's date.
 
+The request may optionally contain a C<test_mode> parameter. This is only
+valid when used against the HMRC sandbox API and, if present, must be set to
+one of the values specified in the
+L<HMRC API documentation|https://developer.service.hmrc.gov.uk/api-documentation/docs/api/service/vat-api/1.0#_retrieve-vat-payments_get_accordion>.
+
 =cut
 
 sub query_payments {
@@ -314,7 +325,78 @@ sub query_payments {
         date_from => $request->{date_from},
         date_to => $request->{date_to},
         access_token => $token->{access_token},
-        test_mode => ($request->{test_mode} || undef),
+        test_mode => $request->{test_mode},
+    );
+
+    return $report->render($request);
+}
+
+
+=head2 filter_obligations
+
+Presents filter screen allowing user to specify a date range and fulfilment
+status before querying VAT filing obligations.
+
+No request parameters are required.
+
+=cut
+
+sub filter_obligations {
+
+    my $request = shift;
+    my $template = LedgerSMB::Template::UI->new_UI;
+
+    my $defaults = {
+        date_from => gmtime->add_years(-1)->ymd,
+        date_to   => ((gmtime) - ONE_DAY)->ymd,
+    };
+
+    return $template->render(
+        $request,
+        'Reports/filters/mtd_vat/obligations',
+        {defaults => $defaults},
+    );
+}
+
+
+=head2 query_obligations
+
+Queries the HMRC MTD VAT api for obligations - VAT returns that are, or
+were, due for filing.
+
+The request must contain the following parameters:
+
+  * date_from
+  * date_to
+  * dbh
+
+The C<date_from> parameter must be before today's date.
+
+The request may optionally contain:
+
+  * filing_status
+
+The C<filing_status> parameter, if specified, must be C<O> or C<F>, indicating
+I<open> or I<fulfilled> respectively.
+
+The C<test_mode> parameter is only valid when used against the HMRC sandbox
+API and, if present, must be set to one of the values specified in the
+L<HMRC API documentation|https://developer.service.hmrc.gov.uk/api-documentation/docs/api/service/vat-api/1.0#_retrieve-vat-payments_get_accordion>.
+
+=cut
+
+sub query_obligations {
+
+    my $request = shift;
+    my $token = _get_user_token($request->{dbh});
+
+    my $report = LedgerSMB::Report::MTD_VAT::Obligations->new(
+        vrn => $request->setting->get('company_sales_tax_id'),
+        date_from => $request->{date_from},
+        date_to => $request->{date_to},
+        filing_status => $request->{filing_status},
+        access_token => $token->{access_token},
+        test_mode => $request->{test_mode},
     );
 
     return $report->render($request);

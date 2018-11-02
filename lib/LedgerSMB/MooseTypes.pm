@@ -92,6 +92,48 @@ subtype 'LedgerSMB::Moose::MTD_VAT_liability_test_mode',
     message { q{The value does not match 'SINGLE_LIABILITY' or 'MULTIPLE_LIABILITIES'} };
 
 
+=head2 LedgerSMB::Moose::MTD_VAT_obligation_test_mode
+
+A string which can be one of the test mode scenarios used to interact with the
+UK HMRC Making Tax Digital obligations sandbox API.
+
+=cut
+
+subtype 'LedgerSMB::Moose::MTD_VAT_obligation_test_mode',
+    as 'Str',
+    where {
+        m/^( QUARTERLY_NONE_MET
+           | QUARTERLY_ONE_MET
+           | QUARTERLY_TWO_MET
+           | QUARTERLY_THREE_MET
+           | QUARTERLY_FOUR_MET
+           | MONTHLY_NONE_MET
+           | MONTHLY_ONE_MET
+           | MONTHLY_TWO_MET
+           | MONTHLY_THREE_MET
+           | NOT_FOUND
+           )$/x
+    },
+    message { q{The value is not a valid MTD obligations test mode} };
+
+
+=head2 LedgerSMB::Moose::MTD_VAT_filing_status
+
+A string which can be either C<O> or C<F> to represent the filing status of
+VAT Returns within the UK HMRC Making Tax Digital system.
+
+C<O> indicates an "Open" filing obligation, C<F> indicates as "Fulfilled"
+filing obligation.
+
+=cut
+
+subtype 'LedgerSMB::Moose::MTD_VAT_filing_status',
+    as 'Str',
+    where { m/^(O|F)$/x },
+    message { q{The value is not a valid MTD VAT filing status ("O" or "F").} };
+
+
+
 =head1 COERCIONS
 
 The only coercion provided is from a string, and it calls the PGDate class's
