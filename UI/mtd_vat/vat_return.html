@@ -1,0 +1,179 @@
+<?lsmb
+    PROCESS "elements.html";
+?>
+
+<body class="lsmb <?lsmb dojo_theme ?>">
+    <div id="vat_return">
+        <form data-dojo-type="lsmb/Form"
+            method="post"
+            action="mtd_vat.pl"
+            id="vat_return"
+        >
+
+            <?lsmb PROCESS input element_data = {
+                name = 'form_id'
+                value = request.form_id
+                type = 'hidden'
+            } ?>
+            <?lsmb PROCESS input element_data = {
+                name = 'periodKey'
+                value = vat_data.periodKey
+                type = 'hidden'
+            } ?>
+            <?lsmb PROCESS input element_data = {
+                name = 'vatDueSales'
+                value = vat_data.vatDueSales
+                type = 'hidden'
+            } ?>
+            <?lsmb PROCESS input element_data = {
+                name = 'vatDueAcquisitions'
+                value = vat_data.vatDueAcquisitions
+                type = 'hidden'
+            } ?>
+            <?lsmb PROCESS input element_data = {
+                name = 'totalVatDue'
+                value = vat_data.totalVatDue
+                type = 'hidden'
+            } ?>
+            <?lsmb PROCESS input element_data = {
+                name = 'vatReclaimedCurrPeriod'
+                value = vat_data.vatReclaimedCurrPeriod
+                type = 'hidden'
+            } ?>
+            <?lsmb PROCESS input element_data = {
+                name = 'netVatDue'
+                value = vat_data.netVatDue
+                type = 'hidden'
+            } ?>
+            <?lsmb PROCESS input element_data = {
+                name = 'totalValueSalesExVAT'
+                value = vat_data.totalValueSalesExVAT
+                type = 'hidden'
+            } ?>
+            <?lsmb PROCESS input element_data = {
+                name = 'totalValuePurchasesExVAT'
+                value = vat_data.totalValuePurchasesExVAT
+                type = 'hidden'
+            } ?>
+            <?lsmb PROCESS input element_data = {
+                name = 'totalValueGoodsSuppliedExVAT'
+                value = vat_data.totalValueGoodsSuppliedExVAT
+                type = 'hidden'
+            } ?>
+            <?lsmb PROCESS input element_data = {
+                name = 'totalAcquisitionsExVAT'
+                value = vat_data.totalAcquisitionsExVAT
+                type = 'hidden'
+            } ?>
+
+            <div class="heading_section">
+                <div class="report_header">
+                    <label><?lsmb text('Report Name') ?>:</label>
+                    <span class="report_header"><?lsmb text('VAT Return') ?></span>
+                </div>
+                <div class="report_header">
+                    <label><?lsmb text('Company') ?>:</label>
+                    <span class="report_header"><?lsmb company ?></span>
+                </div>
+                <div class="report_header">
+                    <label><?lsmb text('VAT Number') ?>:</label>
+                    <span class="report_header"><?lsmb vrn ?></span>
+                </div>
+                <div class="report_header">
+                    <label><?lsmb text('HMRC Period Key') ?>:</label>
+                    <span class="report_header"><?lsmb vat_data.periodKey ?></span>
+                </div>
+                <div class="report_header">
+                    <label><?lsmb text('Tax Period From') ?>:</label>
+                    <span class="report_header"><?lsmb vat_data.start ?></span>
+                </div>
+                <div class="report_header">
+                    <label><?lsmb text('Tax Period To') ?>:</label>
+                    <span class="report_header"><?lsmb vat_data.end ?></span>
+                </div>
+            </div>
+
+            <table class="dynatable vat_return">
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td><?lsmb text('VAT due on sales and other outputs') ?></td>
+                    <td><?lsmb vat_data.vatDueSales ?></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td><?lsmb text('VAT due on acquisitions from other EC Member States') ?></td>
+                    <td><?lsmb vat_data.vatDueAcquisitions ?></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td><?lsmb text('Total VAT due') ?></td>
+                    <td><?lsmb vat_data.totalVatDue ?></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td><?lsmb text('VAT reclaimed on purchases and other inputs (including acquisitions from the EC)') ?></td>
+                    <td><?lsmb vat_data.vatReclaimedCurrPeriod ?></td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td><?lsmb text('Net VAT due') ?></td>
+                    <td><?lsmb vat_data.netVatDue ?></td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td><?lsmb text('Total value of sales and all other outputs excluding any VAT') ?></td>
+                    <td><?lsmb vat_data.totalValueSalesExVAT ?></td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td><?lsmb text('Total value of purchases and all other inputs excluding any VAT (including exempt purchases)') ?></td>
+                    <td><?lsmb vat_data.totalValuePurchasesExVAT ?></td>
+                </tr>
+
+                <tr>
+                    <td>8</td>
+                    <td><?lsmb text('Total value of all supplies of goods and related costs, excluding any VAT, to other EC member states') ?></td>
+                    <td><?lsmb vat_data.totalValueGoodsSuppliedExVAT ?></td>
+                </tr>
+                <tr>
+                    <td>9</td>
+                    <td><?lsmb text('Total value of acquisitions of goods and related costs excluding any VAT, from other EC member states') ?></td>
+                    <td><?lsmb vat_data.totalAcquisitionsExVAT ?></td>
+                </tr>
+            </tbody>
+            </table>
+
+<?lsmb UNLESS is_fulfilled ?>
+            <div class="listtop"><?lsmb text('Declaration') ?></div>
+            <div>
+                When you submit this VAT information you are making a legal
+                declaration that the information is true and complete.
+            </div>
+            <div>
+                A false declaration can result in prosecution.
+            </div>
+            <div>
+                <?lsmb PROCESS input element_data = {
+                    name = 'finalised'
+                    type = 'checkbox'
+                    label = text('I confirm the data show above is correct and wish to submit my electronic VAT declaration to HMRC.')
+                    required = 'true'
+                } ?>
+            </div>
+
+            <div>
+                <?lsmb INCLUDE button element_data = {
+                    text = text('Submit to HMRC')
+                    name = "action"
+                    value = "submit_return"
+                    class = "submit"
+                    type = "submit"
+                } ?>
+            </div>
+<?lsmb END ?>
+
+        </form>
+    </div>
+</body
+

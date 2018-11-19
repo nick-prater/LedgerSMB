@@ -1,0 +1,64 @@
+<?lsmb
+    PROCESS "elements.html";
+?>
+
+<body class="lsmb <?lsmb dojo_theme ?>">
+    <div id="vat_return">
+        <form data-dojo-type="lsmb/Form"
+            method="post"
+            action="mtd_vat.pl"
+            id="vat_return_submission_result"
+        >
+
+            <div class="heading_section">
+                <div class="report_header">
+                    <label><?lsmb text('Report Name') ?>:</label>
+                    <span class="report_header"><?lsmb text('VAT Return Submission') ?></span>
+                </div>
+                <div class="report_header">
+                    <label><?lsmb text('Company') ?>:</label>
+                    <span class="report_header"><?lsmb company ?></span>
+                </div>
+                <div class="report_header">
+                    <label><?lsmb text('VAT Number') ?>:</label>
+                    <span class="report_header"><?lsmb vrn ?></span>
+                </div>
+            </div>
+
+            <table class="dynatable vat_return">
+            <tbody>
+                <tr>
+                    <td><?lsmb text('Receipt ID') ?></td>
+                    <td><?lsmb submission.receiptId ?></td>
+                </tr>
+                <tr>
+                    <td><?lsmb text('Receipt Timestamp') ?></td>
+                    <td><?lsmb submission.receiptTimestamp ?></td>
+                </tr>
+                <tr>
+                    <td><?lsmb text('Processing Timestamp') ?></td>
+                    <td><?lsmb submission.processingDate ?></td>
+                </tr>
+                <tr>
+                    <td><?lsmb text('Form Bundle') ?></td>
+                    <td><?lsmb submission.formBundleNumber ?></td>
+                </tr>
+                <tr>
+                    <td><?lsmb text('Charge Reference') ?></td>
+                    <td><?lsmb submission.chargeRefNumber OR '' ?></td>
+                </tr>
+                <tr>
+                    <td><?lsmb text('Payment Method') ?></td>
+                    <td><?lsmb submission.paymentIndicator OR '' ?></td>
+                </tr>
+                <tr>
+                    <td><?lsmb text('Correlation ID') ?></td>
+                    <td><?lsmb submission.correlationId ?></td>
+                </tr>
+            </tbody>
+            </table>
+
+        </form>
+    </div>
+</body
+

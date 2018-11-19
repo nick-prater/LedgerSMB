@@ -56,6 +56,7 @@ requires 'Template::Provider';
 requires 'Try::Tiny';
 requires 'Text::CSV';
 requires 'Text::Markdown';
+requires 'URI::Escape';
 requires 'Version::Compare';
 requires 'WebService::HMRC', '0.02';
 requires 'WebService::HMRC::VAT';

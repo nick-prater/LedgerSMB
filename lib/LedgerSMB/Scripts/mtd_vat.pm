@@ -403,6 +403,156 @@ sub query_obligations {
 }
 
 
+=head2 view_return
+
+Retrieves the specified VAT return from HMRC and displays it.
+
+The request must contain the following parameters:
+
+  * periodKey
+  * dbh
+
+Optionally, the request may contain the following parameters which will
+be used to populate report headers `Tax Period From` and `Tax Period To`,
+but otherwise serve no purpose:
+
+  * from
+  * to
+
+=cut
+
+sub view_return {
+
+    my $request = shift;
+    my $token = _get_user_token($request->{dbh});
+    my $template = LedgerSMB::Template::UI->new_UI;
+    my $vrn = $request->setting->get('company_sales_tax_id');
+
+    my $auth = WebService::HMRC::Authenticate->new({
+        access_token => $token->{access_token},
+    });
+
+    my $vat = WebService::HMRC::VAT->new({
+        vrn => _numeric_vrn($vrn),
+        auth => $auth,
+    });
+
+    my $result = $vat->get_return({
+        period_key => $request->{period_key},
+    });
+
+    $result->is_success or die 'ERROR: ', $result->data->{message};
+
+    my $vat_data = $result->{data};
+    $vat_data->{start} = $request->{start};
+    $vat_data->{end} = $request->{end};
+
+    return $template->render(
+        $request,
+        'mtd_vat/vat_return',
+        {
+            vat_data => $vat_data,
+            vrn => $vrn,
+            company => $request->{company},
+            is_fulfilled => 1,
+        },
+    );
+}
+
+
+=head2 file_return
+
+Extracts VAT figures for the specified period and presents them to the user
+for approval and submission.
+
+  * dbh
+  * periodKey
+  * start (YYYY-MM-DD)
+  * end (YYYY-MM-DD)
+
+=cut
+
+sub file_return {
+
+    my $request = shift;
+    my $template = LedgerSMB::Template::UI->new_UI;
+    my $vrn = $request->setting->get('company_sales_tax_id');
+
+    my $vat_data = _extract_vat_data_from_books();
+    $vat_data->{periodKey} = $request->{period_key};
+    $vat_data->{start} = $request->{start};
+    $vat_data->{end} = $request->{end};
+
+    return $template->render(
+        $request,
+        'mtd_vat/vat_return',
+        {
+            vat_data => $vat_data,
+            vrn => $vrn,
+            company => $request->{company},
+        },
+    );
+}
+
+
+=head2 submit_return
+
+Accepts vat return figures from the confirmation form, submits them to HMRC,
+then displays a status page.
+
+The request must contain the following parameters:
+
+  * dbh
+  * periodKey
+  * vatDueSales
+  * vatDueAcquisitions
+  * totalVatDue
+  * vatReclaimedCurrPeriod
+  * netVatDue
+  * totalValueSalesExVAT
+  * totalValuePurchasesExVAT
+  * totalValueGoodsSuppliedExVAT
+  * totalAcquisitionsExVAT
+  * finalised (user declaration, must be true)
+
+=cut
+
+sub submit_return {
+
+    my $request = shift;
+    my $vat_data = _extract_vat_data_from_request($request);
+    my $token = _get_user_token($request->{dbh});
+    my $template = LedgerSMB::Template::UI->new_UI;
+    my $vrn = $request->setting->get('company_sales_tax_id');
+
+    my $auth = WebService::HMRC::Authenticate->new({
+        access_token => $token->{access_token},
+    });
+
+    my $vat = WebService::HMRC::VAT->new({
+        vrn => _numeric_vrn($vrn),
+        auth => $auth,
+    });
+
+    my $result = $vat->submit_return($vat_data);
+    $result->is_success or die 'ERROR: ', $result->data->{message};
+
+    my $submission = $result->{data};
+    $submission->{receiptId} = $result->header('Receipt-ID');
+    $submission->{receiptTimestamp} = $result->header('Receipt-Timestamp');
+    $submission->{correlationId} = $result->header('X-CorrelationId');
+
+    return $template->render(
+        $request,
+        'mtd_vat/submission_result',
+        {
+            submission => $submission,
+            vrn => $vrn,
+            company => $request->{company},
+        },
+    );
+}
+
 
 # PRIVATE FUNCTIONS
 
@@ -498,6 +648,94 @@ sub _delete_token {
         args => [$token_id],
     );
 }
+
+
+# _numeric_vrn($vrn)
+#
+# strips non-digit characters from the supplied input string and returns the
+# result. Dies if the result does not comprise 9 digits, which is expected for
+# a UK VAT Registrstion Number.
+
+sub _numeric_vrn {
+
+    my $vrn = shift;
+
+    # Strip non-digit components, such as country code or formatting spaces
+    $vrn =~ s/\D//g;
+
+    # Remainder should be 9 digits for a UK VAT number
+    $vrn =~ m/^\d{9}$/ or die 'VAT Registration number is invalid - '.
+                              'a UK VAT number should contain 9 digits';
+
+    return $vrn;
+}
+
+
+# _extract_vat_data_from_books
+#
+# Dummy stub function returning VAT data to be submitted. Will be replaced by
+# code to extract real numbers from the books.
+
+sub _extract_vat_data_from_books {
+
+    return {
+        vatDueSales => "100.00",
+        vatDueAcquisitions => 0.00,
+        totalVatDue => 100.00,
+        vatReclaimedCurrPeriod => 50.00,
+        netVatDue => 50,
+        totalValueSalesExVAT => 500,
+        totalValuePurchasesExVAT => 250,
+        totalValueGoodsSuppliedExVAT => 0,
+        totalAcquisitionsExVAT => 0,
+    };
+};
+
+
+# _extract_vat_data_from_request
+#
+# Returns VAT data to be submitted from the supplied request object.
+# Validates that `finalised` flag is true and that numeric fields
+# look like plain numbers (no thousands separator). Dies if validation
+# fails.
+
+sub _extract_vat_data_from_request {
+
+    my $request = shift;
+    my $vat_data = {};
+
+    foreach my $field (qw(
+        periodKey
+        vatDueSales
+        vatDueAcquisitions
+        totalVatDue
+        vatReclaimedCurrPeriod
+        netVatDue
+        totalValueSalesExVAT
+        totalValuePurchasesExVAT
+        totalValueGoodsSuppliedExVAT
+        totalAcquisitionsExVAT
+        finalised
+    )) {
+        $vat_data->{$field} = $request->{$field};
+
+        # Validation for different field types
+        if($field eq 'finalised') {
+            $vat_data->{finalised}
+                or die 'finalised flag is not set true';
+        }
+        elsif($field eq 'periodKey') {
+            $vat_data->{periodKey} =~ m/^[\w#]{4}$/
+                or die 'periodKey is invalid';
+        }
+        else {
+            $vat_data->{$field} =~ m/^-?\d*\.?\d{0,2}$/
+                or die "$field is not a valid number";
+        }
+    }
+
+    return $vat_data;
+};
 
 
 =head1 LICENSE AND COPYRIGHT

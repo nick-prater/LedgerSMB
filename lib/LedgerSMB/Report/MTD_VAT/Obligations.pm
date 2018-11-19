@@ -32,6 +32,7 @@ display VAT return filing obligations.
 use LedgerSMB::MooseTypes;
 use Moose;
 use namespace::autoclean;
+use URI::Escape;
 use WebService::HMRC::Authenticate;
 use WebService::HMRC::VAT;
 extends 'LedgerSMB::Report';
@@ -268,11 +269,24 @@ sub run_report{
         # `received` is only present in result if a return is fulfilled
         $row->{received} //= '';
 
+        # Display View or File action depending on status
         if($row->{is_fulfilled}) {
-            $row->{action} = 'view';
+            $row->{action} = $self->_locale->text('view');
+            $row->{action_href_suffix} = sprintf(
+                'mtd_vat.pl?action=view_return&period_key=%s&start=%s&end=%s',
+                uri_escape($row->{periodKey}),
+                uri_escape($row->{start}),
+                uri_escape($row->{end}),
+            );
         }
         else {
-            $row->{action} = 'file';
+            $row->{action} = $self->_locale->text('file');
+            $row->{action_href_suffix} = sprintf(
+                'mtd_vat.pl?action=file_return&period_key=%s&start=%s&end=%s',
+                uri_escape($row->{periodKey}),
+                uri_escape($row->{start}),
+                uri_escape($row->{end}),
+            );
         }
     }
 
