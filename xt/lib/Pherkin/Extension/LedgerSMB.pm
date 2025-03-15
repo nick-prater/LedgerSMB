@@ -509,9 +509,9 @@ sub create_vc {
         entity_class     => ($vc eq 'vendor' ? 1 : 2),
         _dbh             => $admin_dbh,
         ar_ap_account_id => $accno_ids{($vc eq 'vendor' ? '2100' : '1200')},
-        meta_number      => "$vc-$vc_counter",
+        meta_number      => $vc_name,
         curr             => 'USD',
-    )->save;
+        )->save;
 
     my $vc_key = ($vc eq 'vendor') ? 'the vendor' : 'the customer';
     return {
